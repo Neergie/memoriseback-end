@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Genre;
+use Symfony\Component\HttpFoundation\Request;
 
 class GenreController extends AbstractController
 {
@@ -22,6 +23,7 @@ class GenreController extends AbstractController
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/GenreController.php',
+            
         ]);
     }
 }

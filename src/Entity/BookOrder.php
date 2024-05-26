@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\BookOrderRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookOrderRepository::class)]
 class BookOrder
@@ -30,7 +31,7 @@ class BookOrder
     {
         return $this->id;
     }
-
+    #[Assert\Positive]
     public function getQuantity(): ?int
     {
         return $this->quantity;

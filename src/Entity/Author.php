@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
-class Author
+class Author extends Identity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

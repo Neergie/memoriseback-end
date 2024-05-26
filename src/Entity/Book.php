@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -23,6 +25,10 @@ class Book
     private ?string $description = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Isbn(
+        type: Assert\Isbn::ISBN_10,
+        message: "L'isbn n'est pas valide.",
+    )]
     private ?string $isbn = null;
 
     #[ORM\Column]
@@ -62,7 +68,7 @@ class Book
      * @var Collection<int, Author>
      */
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
-    private Collection $authorss;
+    private Collection $authors;
 
     public function __construct()
     {
@@ -136,7 +142,7 @@ class Book
 
         return $this;
     }
-
+    #[Assert\PositiveOrZero]
     public function getStock(): ?int
     {
         return $this->stock;

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240516202137 extends AbstractMigration
+final class Version20240526115059 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,13 +20,7 @@ final class Version20240516202137 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SEQUENCE author_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE book_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE book_order_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE editor_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE "order_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE transaction_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE author (id INT NOT NULL, birthday DATE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE author (id INT NOT NULL, firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50) NOT NULL, birthday DATE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE book (id INT NOT NULL, name VARCHAR(255) NOT NULL, description TEXT DEFAULT NULL, isbn VARCHAR(20) NOT NULL, price DOUBLE PRECISION NOT NULL, publish_date DATE NOT NULL, stock INT NOT NULL, ebook BOOLEAN NOT NULL, cover_image BYTEA DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE book_genre (book_id INT NOT NULL, genre_id INT NOT NULL, PRIMARY KEY(book_id, genre_id))');
         $this->addSql('CREATE INDEX IDX_8D92268116A2B381 ON book_genre (book_id)');
@@ -41,9 +35,13 @@ final class Version20240516202137 extends AbstractMigration
         $this->addSql('CREATE TABLE editor_book (editor_id INT NOT NULL, book_id INT NOT NULL, PRIMARY KEY(editor_id, book_id))');
         $this->addSql('CREATE INDEX IDX_212433F86995AC4C ON editor_book (editor_id)');
         $this->addSql('CREATE INDEX IDX_212433F816A2B381 ON editor_book (book_id)');
+        $this->addSql('CREATE TABLE genre (id INT NOT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_835033F85E237E06 ON genre (name)');
         $this->addSql('CREATE TABLE "order" (id INT NOT NULL, transaction_id INT NOT NULL, order_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivery_stats VARCHAR(255) NOT NULL, total_price DOUBLE PRECISION NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_F52993982FC0CB0F ON "order" (transaction_id)');
         $this->addSql('CREATE TABLE transaction (id INT NOT NULL, payment_status VARCHAR(255) NOT NULL, payment_method VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE "user" (id INT NOT NULL, firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50) NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (email)');
         $this->addSql('ALTER TABLE book_genre ADD CONSTRAINT FK_8D92268116A2B381 FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE book_genre ADD CONSTRAINT FK_8D9226814296D31F FOREIGN KEY (genre_id) REFERENCES genre (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE book_author ADD CONSTRAINT FK_9478D34516A2B381 FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -59,12 +57,6 @@ final class Version20240516202137 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('DROP SEQUENCE author_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE book_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE book_order_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE editor_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE "order_id_seq" CASCADE');
-        $this->addSql('DROP SEQUENCE transaction_id_seq CASCADE');
         $this->addSql('ALTER TABLE book_genre DROP CONSTRAINT FK_8D92268116A2B381');
         $this->addSql('ALTER TABLE book_genre DROP CONSTRAINT FK_8D9226814296D31F');
         $this->addSql('ALTER TABLE book_author DROP CONSTRAINT FK_9478D34516A2B381');
@@ -81,7 +73,9 @@ final class Version20240516202137 extends AbstractMigration
         $this->addSql('DROP TABLE book_order');
         $this->addSql('DROP TABLE editor');
         $this->addSql('DROP TABLE editor_book');
+        $this->addSql('DROP TABLE genre');
         $this->addSql('DROP TABLE "order"');
         $this->addSql('DROP TABLE transaction');
+        $this->addSql('DROP TABLE "user"');
     }
 }

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -24,6 +25,7 @@ class Order
     private ?string $delivery_stats = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private ?float $total_price = null;
 
     #[ORM\OneToOne(inversedBy: 'order_entity', cascade: ['persist', 'remove'])]
