@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -24,11 +24,7 @@ class Book
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 20)]
-    #[Assert\Isbn(
-        type: Assert\Isbn::ISBN_10,
-        message: "L'isbn n'est pas valide.",
-    )]
+    #[ORM\Column]
     private ?string $isbn = null;
 
     #[ORM\Column]
@@ -43,20 +39,18 @@ class Book
     #[ORM\Column]
     private ?bool $ebook = null;
 
-    #[ORM\Column(type: Types::BLOB, nullable: true)]
-    private $cover_image;
-
     /**
      * @var Collection<int, BookOrder>
      */
     #[ORM\OneToMany(targetEntity: BookOrder::class, mappedBy: 'book')]
+    #[Ignore]
     private Collection $book_orders;
 
     /**
      * @var Collection<int, Genre>
      */
     #[ORM\ManyToMany(targetEntity: Genre::class, inversedBy: 'books')]
-    private Collection $genre;
+    private Collection $genres;
 
     /**
      * @var Collection<int, Editor>
@@ -70,10 +64,13 @@ class Book
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
     private Collection $authors;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $coverImagePath = null;
+
     public function __construct()
     {
         $this->book_orders = new ArrayCollection();
-        $this->genre = new ArrayCollection();
+        $this->genres = new ArrayCollection();
         $this->editors = new ArrayCollection();
         $this->authors = new ArrayCollection();
     }
@@ -167,18 +164,6 @@ class Book
         return $this;
     }
 
-    public function getCoverImage()
-    {
-        return $this->cover_image;
-    }
-
-    public function setCoverImage($cover_image): static
-    {
-        $this->cover_image = $cover_image;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, BookOrder>
      */
@@ -214,13 +199,13 @@ class Book
      */
     public function getGenre(): Collection
     {
-        return $this->genre;
+        return $this->genres;
     }
 
     public function addGenre(Genre $genre): static
     {
-        if (!$this->genre->contains($genre)) {
-            $this->genre->add($genre);
+        if (!$this->genres->contains($genre)) {
+            $this->genres->add($genre);
         }
 
         return $this;
@@ -228,7 +213,7 @@ class Book
 
     public function removeGenre(Genre $genre): static
     {
-        $this->genre->removeElement($genre);
+        $this->genres->removeElement($genre);
 
         return $this;
     }
@@ -280,6 +265,18 @@ class Book
     public function removeAuthor(Author $authors): static
     {
         $this->authors->removeElement($authors);
+
+        return $this;
+    }
+
+    public function getCoverImagePath(): ?string
+    {
+        return $this->coverImagePath;
+    }
+
+    public function setCoverImagePath(?string $coverImagePath): static
+    {
+        $this->coverImagePath = $coverImagePath;
 
         return $this;
     }

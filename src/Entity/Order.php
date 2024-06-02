@@ -38,6 +38,9 @@ class Order
     #[ORM\OneToMany(targetEntity: BookOrder::class, mappedBy: 'order_entity')]
     private Collection $book_orders;
 
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    private ?User $user_order = null;
+
     public function __construct()
     {
         $this->book_orders = new ArrayCollection();
@@ -122,6 +125,18 @@ class Order
                 $bookOrder->setOrderEntity(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUserOrder(): ?User
+    {
+        return $this->user_order;
+    }
+
+    public function setUserOrder(?User $user_order): static
+    {
+        $this->user_order = $user_order;
 
         return $this;
     }
