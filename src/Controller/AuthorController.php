@@ -31,7 +31,7 @@ class AuthorController extends AbstractController
     }
 
     #[Route('/authors', name: 'list_authors', methods: ['GET'])]
-    public function list_genres(EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
+    public function list_authors(EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
     {
         $author = $entityManager->getRepository(Author::class)->findAll();
 

@@ -31,18 +31,18 @@ class AppFixtures extends Fixture
     public function loadUsers(ObjectManager $manager): void
     {
         $admin = new User();
-        $admin->setEmail('admin@admin.admin');
+        $admin->setEmail('theo@admin.com');
 
-        $password = $this->hasher->hashPassword($admin, 'password');
+        $password = $this->hasher->hashPassword($admin, 'tests');
         $admin->setPassword($password);
-        $admin->setFirstname("Karl");
-        $admin->setLastname("Portal");
+        $admin->setFirstname("Theo");
+        $admin->setLastname("Wizman");
         $admin->setRoles(['ROLE_ADMIN']);
 
         $user = new User();
-        $user->setEmail('user@user.user');
+        $user->setEmail('theo@user.com');
 
-        $password = $this->hasher->hashPassword($admin, 'password');
+        $password = $this->hasher->hashPassword($admin, 'tests');
         $user->setPassword($password);
         $user->setFirstname("Theo");
         $user->setLastname("Wizman");
@@ -73,11 +73,20 @@ class AppFixtures extends Fixture
 
         $babelio = new Editor();
         $babelio->setName("Babelio");
+        $hachette = new Editor();
+        $hachette->setName("Hachette"); 
+        $gallimard = new Editor();
+        $gallimard->setName("Gallimard");
 
         $joseph_delaney = new Author();
         $joseph_delaney->setFirstname("Joseph");
         $joseph_delaney->setLastname("Delaney");
         $joseph_delaney->setBirthday(new \DateTime("1945-07-25"));
+
+        $jean_delafontaine = new Author();
+        $jean_delafontaine->setFirstname("Jean");
+        $jean_delafontaine->setLastname("De la Fontaine");
+        $jean_delafontaine->setBirthday(new \DateTime("1695-04-06"));
 
         $epouvantor_tome_1 = new Book();
         $epouvantor_tome_1->setName("L'Épouvanteur, Tome 1 : L'apprenti-épouvanteur");
@@ -101,6 +110,9 @@ class AppFixtures extends Fixture
         $manager->persist($genre_others);
 
         $manager->persist($babelio);
+        $manager->persist($jean_delafontaine);
+        $manager->persist($gallimard);
+        $manager->persist($hachette);
         $manager->persist($joseph_delaney);
         $manager->persist($epouvantor_tome_1);
     }

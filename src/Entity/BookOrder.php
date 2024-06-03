@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BookOrderRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: BookOrderRepository::class)]
 class BookOrder
@@ -15,23 +16,26 @@ class BookOrder
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\Positive]
     private ?int $quantity = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private ?float $price = null;
 
-    #[ORM\ManyToOne(inversedBy: 'book_orders')]
+    #[ORM\ManyToOne(inversedBy: 'bookOrders')]
     private ?Book $book = null;
 
-    #[ORM\ManyToOne(inversedBy: 'book_orders')]
+    #[ORM\ManyToOne(inversedBy: 'bookOrders')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Order $order_entity = null;
+    #[Ignore]
+    private ?Order $orderEntity = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
-    #[Assert\Positive]
+
     public function getQuantity(): ?int
     {
         return $this->quantity;
@@ -68,14 +72,15 @@ class BookOrder
         return $this;
     }
 
+    #[Ignore]
     public function getOrderEntity(): ?Order
     {
-        return $this->order_entity;
+        return $this->orderEntity;
     }
 
-    public function setOrderEntity(?Order $order_entity): static
+    public function setOrderEntity(?Order $orderEntity): static
     {
-        $this->order_entity = $order_entity;
+        $this->orderEntity = $orderEntity;
 
         return $this;
     }

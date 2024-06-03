@@ -17,19 +17,19 @@ use Symfony\Component\Serializer\SerializerInterface;
 class EditorController extends AbstractController
 {
     #[Route('/editor/add', name: 'add_editor', methods: ['POST'])]
-    public function add_author(#[MapRequestPayload] EditorDto $editorDto, EntityManagerInterface $entityManager): JsonResponse
+    public function add_editor(#[MapRequestPayload] EditorDto $editorDto, EntityManagerInterface $entityManager): JsonResponse
     {
-        $author = new Editor();
-        $author->setName($editorDto->name);
+        $editor = new Editor();
+        $editor->setName($editorDto->name);
 
-        $entityManager->persist($author);
+        $entityManager->persist($editor);
         $entityManager->flush();
 
         return new JsonResponse(null, Response::HTTP_OK);
     }
 
     #[Route('/editors', name: 'list_editors', methods: ['GET'])]
-    public function list_genres(EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
+    public function list_editors(EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
     {
         $editors = $entityManager->getRepository(Editor::class)->findAll();
 

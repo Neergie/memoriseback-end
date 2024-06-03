@@ -4,6 +4,13 @@ namespace App\Entity;
 
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+
+enum PaymentStatus: string
+{
+    case PAID = 'PAID';
+    case IN_PROGRESS = 'IN_PROGRESS';
+}
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
@@ -13,57 +20,60 @@ class Transaction
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $payment_status = null;
+    #[ORM\Column(type: 'string', enumType: PaymentStatus::class)]
+    private ?PaymentStatus $paymentStatus = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $payment_method = null;
+    private ?string $paymentMethod = null;
 
     #[ORM\OneToOne(mappedBy: 'transaction', cascade: ['persist', 'remove'])]
-    private ?Order $order_entity = null;
+    #[Ignore]
+    private ?Order $orderEntity = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getPaymentStatus(): ?string
+    public function getPaymentStatus(): ?PaymentStatus
     {
-        return $this->payment_status;
+        return $this->paymentStatus;
     }
 
-    public function setPaymentStatus(string $payment_status): static
+    public function setPaymentStatus(PaymentStatus $paymentStatus): static
     {
-        $this->payment_status = $payment_status;
+        $this->paymentStatus = $paymentStatus;
 
         return $this;
     }
 
+    #[Ignore]
     public function getPaymentMethod(): ?string
     {
-        return $this->payment_method;
+        return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(string $payment_method): static
+    public function setPaymentMethod(string $paymentMethod): static
     {
-        $this->payment_method = $payment_method;
+        $this->paymentMethod = $paymentMethod;
 
         return $this;
     }
 
+    #[Ignore]
     public function getOrderEntity(): ?Order
     {
-        return $this->order_entity;
+        return $this->orderEntity;
     }
 
-    public function setOrderEntity(Order $order_entity): static
+    public function setOrderEntity(Order $orderEntity): static
     {
         // set the owning side of the relation if necessary
-        if ($order_entity->getTransaction() !== $this) {
-            $order_entity->setTransaction($this);
+        if ($orderEntity->getTransaction() !== $this) {
+            $orderEntity->setTransaction($this);
         }
 
-        $this->order_entity = $order_entity;
+        $this->orderEntity = $orderEntity;
 
         return $this;
     }

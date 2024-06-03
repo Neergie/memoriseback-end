@@ -28,12 +28,14 @@ class Book
     private ?string $isbn = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private ?float $price = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $publish_date = null;
+    private ?\DateTimeInterface $publishDate = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
     private ?int $stock = null;
 
     #[ORM\Column]
@@ -44,7 +46,7 @@ class Book
      */
     #[ORM\OneToMany(targetEntity: BookOrder::class, mappedBy: 'book')]
     #[Ignore]
-    private Collection $book_orders;
+    private Collection $bookOrders;
 
     /**
      * @var Collection<int, Genre>
@@ -55,7 +57,7 @@ class Book
     /**
      * @var Collection<int, Editor>
      */
-    #[ORM\ManyToMany(targetEntity: Editor::class, mappedBy: 'books')]
+    #[ORM\ManyToMany(targetEntity: Editor::class, inversedBy: 'books')]
     private Collection $editors;
 
     /**
@@ -64,12 +66,15 @@ class Book
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
     private Collection $authors;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $coverImage = null;
+
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $coverImagePath = null;
+    private ?string $altImg = null;
 
     public function __construct()
     {
-        $this->book_orders = new ArrayCollection();
+        $this->bookOrders = new ArrayCollection();
         $this->genres = new ArrayCollection();
         $this->editors = new ArrayCollection();
         $this->authors = new ArrayCollection();
@@ -130,16 +135,16 @@ class Book
 
     public function getPublishDate(): ?\DateTimeInterface
     {
-        return $this->publish_date;
+        return $this->publishDate;
     }
 
-    public function setPublishDate(\DateTimeInterface $publish_date): static
+    public function setPublishDate(\DateTimeInterface $publishDate): static
     {
-        $this->publish_date = $publish_date;
+        $this->publishDate = $publishDate;
 
         return $this;
     }
-    #[Assert\PositiveOrZero]
+
     public function getStock(): ?int
     {
         return $this->stock;
@@ -167,15 +172,16 @@ class Book
     /**
      * @return Collection<int, BookOrder>
      */
+    #[Ignore]
     public function getBookOrders(): Collection
     {
-        return $this->book_orders;
+        return $this->bookOrders;
     }
 
     public function addBookOrder(BookOrder $bookOrder): static
     {
-        if (!$this->book_orders->contains($bookOrder)) {
-            $this->book_orders->add($bookOrder);
+        if (!$this->bookOrders->contains($bookOrder)) {
+            $this->bookOrders->add($bookOrder);
             $bookOrder->setBook($this);
         }
 
@@ -184,7 +190,7 @@ class Book
 
     public function removeBookOrder(BookOrder $bookOrder): static
     {
-        if ($this->book_orders->removeElement($bookOrder)) {
+        if ($this->bookOrders->removeElement($bookOrder)) {
             // set the owning side to null (unless already changed)
             if ($bookOrder->getBook() === $this) {
                 $bookOrder->setBook(null);
@@ -197,7 +203,7 @@ class Book
     /**
      * @return Collection<int, Genre>
      */
-    public function getGenre(): Collection
+    public function getGenres(): Collection
     {
         return $this->genres;
     }
@@ -211,9 +217,9 @@ class Book
         return $this;
     }
 
-    public function removeGenre(Genre $genre): static
+    public function removeGenre(Genre $genres): static
     {
-        $this->genres->removeElement($genre);
+        $this->genres->removeElement($genres);
 
         return $this;
     }
@@ -230,7 +236,6 @@ class Book
     {
         if (!$this->editors->contains($editor)) {
             $this->editors->add($editor);
-            $editor->addBook($this);
         }
 
         return $this;
@@ -238,9 +243,7 @@ class Book
 
     public function removeEditor(Editor $editor): static
     {
-        if ($this->editors->removeElement($editor)) {
-            $editor->removeBook($this);
-        }
+        $this->editors->removeElement($editor);
 
         return $this;
     }
@@ -248,7 +251,7 @@ class Book
     /**
      * @return Collection<int, Author>
      */
-    public function getAuthor(): Collection
+    public function getAuthors(): Collection
     {
         return $this->authors;
     }
@@ -269,14 +272,26 @@ class Book
         return $this;
     }
 
-    public function getCoverImagePath(): ?string
+    public function getCoverImage(): ?string
     {
-        return $this->coverImagePath;
+        return $this->coverImage;
     }
 
-    public function setCoverImagePath(?string $coverImagePath): static
+    public function setCoverImage(?string $coverImage): static
     {
-        $this->coverImagePath = $coverImagePath;
+        $this->coverImage = $coverImage;
+
+        return $this;
+    }
+
+    public function getAltImg(): ?string
+    {
+        return $this->altImg;
+    }
+
+    public function setAltImg(?string $altImg): static
+    {
+        $this->altImg = $altImg;
 
         return $this;
     }

@@ -21,10 +21,10 @@ class User extends Identity implements UserInterface, PasswordAuthenticatedUserI
     private ?int $id = null;
 
     #[Assert\NotBlank]
-    #[ORM\Column(length: 180)]
     #[Assert\Email(
-        message: "L'email {{ value }} n'est pas valide.",
+        message: 'The email {{ value }} is not a valid email.',
     )]
+    #[ORM\Column]
     private ?string $email = null;
 
     /**
@@ -40,14 +40,14 @@ class User extends Identity implements UserInterface, PasswordAuthenticatedUserI
     #[ORM\Column]
     #[Assert\Length(
         min: 5,
-        minMessage: 'Ton mot de passe doit avoir au moins {{ limit }} caractères.',
+        minMessage: 'Your first name must be at least {{ limit }} characters long',
     )]
     private ?string $password = null;
 
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user_order')]
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'userOrder')]
     private Collection $orders;
 
     public function __construct()

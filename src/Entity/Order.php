@@ -8,6 +8,14 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Ignore;
+
+enum DeliveryState: string
+{
+    case DONE = 'DONE';
+    case SHIPPED = 'SHIPPED';
+    case IN_TREATMENT = 'IN_TREATMENT';
+}
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -19,31 +27,32 @@ class Order
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $order_date = null;
+    private ?\DateTimeInterface $orderDate = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $delivery_stats = null;
+    #[ORM\Column(type: 'string', enumType: DeliveryState::class)]
+    private ?DeliveryState $deliveryState = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    private ?float $total_price = null;
+    private ?float $totalPrice = null;
 
-    #[ORM\OneToOne(inversedBy: 'order_entity', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'orderEntity', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Transaction $transaction = null;
 
     /**
      * @var Collection<int, BookOrder>
      */
-    #[ORM\OneToMany(targetEntity: BookOrder::class, mappedBy: 'order_entity')]
-    private Collection $book_orders;
+    #[ORM\OneToMany(targetEntity: BookOrder::class, mappedBy: 'orderEntity')]
+    private Collection $bookOrders;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
-    private ?User $user_order = null;
+    #[Ignore]
+    private ?User $userOrder = null;
 
     public function __construct()
     {
-        $this->book_orders = new ArrayCollection();
+        $this->bookOrders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -53,36 +62,36 @@ class Order
 
     public function getOrderDate(): ?\DateTimeInterface
     {
-        return $this->order_date;
+        return $this->orderDate;
     }
 
-    public function setOrderDate(\DateTimeInterface $order_date): static
+    public function setOrderDate(\DateTimeInterface $orderDate): static
     {
-        $this->order_date = $order_date;
+        $this->orderDate = $orderDate;
 
         return $this;
     }
 
-    public function getDeliveryStats(): ?string
+    public function getDeliveryState(): ?DeliveryState
     {
-        return $this->delivery_stats;
+        return $this->deliveryState;
     }
 
-    public function setDeliveryStats(string $delivery_stats): static
+    public function setDeliveryState(DeliveryState $deliveryState): static
     {
-        $this->delivery_stats = $delivery_stats;
+        $this->deliveryState = $deliveryState;
 
         return $this;
     }
 
     public function getTotalPrice(): ?float
     {
-        return $this->total_price;
+        return $this->totalPrice;
     }
 
-    public function setTotalPrice(float $total_price): static
+    public function setTotalPrice(float $totalPrice): static
     {
-        $this->total_price = $total_price;
+        $this->totalPrice = $totalPrice;
 
         return $this;
     }
@@ -104,13 +113,13 @@ class Order
      */
     public function getBookOrders(): Collection
     {
-        return $this->book_orders;
+        return $this->bookOrders;
     }
 
     public function addBookOrder(BookOrder $bookOrder): static
     {
-        if (!$this->book_orders->contains($bookOrder)) {
-            $this->book_orders->add($bookOrder);
+        if (!$this->bookOrders->contains($bookOrder)) {
+            $this->bookOrders->add($bookOrder);
             $bookOrder->setOrderEntity($this);
         }
 
@@ -119,7 +128,7 @@ class Order
 
     public function removeBookOrder(BookOrder $bookOrder): static
     {
-        if ($this->book_orders->removeElement($bookOrder)) {
+        if ($this->bookOrders->removeElement($bookOrder)) {
             // set the owning side to null (unless already changed)
             if ($bookOrder->getOrderEntity() === $this) {
                 $bookOrder->setOrderEntity(null);
@@ -129,14 +138,15 @@ class Order
         return $this;
     }
 
+    #[Ignore]
     public function getUserOrder(): ?User
     {
-        return $this->user_order;
+        return $this->userOrder;
     }
 
-    public function setUserOrder(?User $user_order): static
+    public function setUserOrder(?User $userOrder): static
     {
-        $this->user_order = $user_order;
+        $this->userOrder = $userOrder;
 
         return $this;
     }

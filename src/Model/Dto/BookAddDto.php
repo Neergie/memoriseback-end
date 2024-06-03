@@ -23,7 +23,8 @@ class BookAddDto
         #[Assert\PositiveOrZero]
         public int $price,
         public bool $ebook,
-        public ?string $coverImage
+        public ?string $coverImage,
+        public ?string $altImg,
     ) {
     }
 }

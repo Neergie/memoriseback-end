@@ -16,9 +16,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class BookController extends AbstractController
 {
@@ -47,33 +44,11 @@ class BookController extends AbstractController
             $book->addGenre($entityManager->getReference(Genre::class, $genre));
         }
 
+        $book->setCoverImage($bookAddDto->coverImage);
+        $book->setAltImg($bookAddDto->altImg);
+
         $entityManager->persist($book);
         $entityManager->flush();
-
-        if ($bookAddDto->coverImage != null && base64_decode($bookAddDto->coverImage)) {
-            $filesystem = new Filesystem();
-
-            try {
-                $path = '/Users/wizman/Desktop/memorise_picture';
-                $filesystem->mkdir(
-                    Path::normalize($path),
-                );
-
-                $picturebase64 = $bookAddDto->coverImage;
-                $picture_decoded = base64_decode(explode(';base64,', $bookAddDto->coverImage)[1]);
-                $extension = substr($picturebase64, strlen("data:image/"), strpos($picturebase64, ";base64") - strlen("data:image/"));
-
-                $coverImagePath = $path . '/' . $book->getId() . '.' . $extension;
-                $filesystem->dumpFile($coverImagePath, $picture_decoded);
-                $book = $entityManager->getRepository(Book::class)->find($book->getId());
-                $book->setCoverImagePath($coverImagePath);
-                $entityManager->flush();
-            } catch (IOExceptionInterface $exception) {
-                $entityManager->remove($book);
-                $entityManager->flush();
-                return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
-            }
-        }
             
         return new JsonResponse(null, Response::HTTP_OK);
     }
@@ -114,5 +89,12 @@ class BookController extends AbstractController
         SerializerInterface $serializer
     ): JsonResponse {
         return JsonResponse::fromJsonString($serializer->serialize($book, 'json'));
+    }
+    #[Route('/books/{books_count}', name: 'list_last_books', methods: ['GET'])]
+    public function list_last_books(int $books_count, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
+    {
+        $books = $entityManager->getRepository(Book::class)->findBy([], ['id' => 'DESC'], $books_count);
+
+        return JsonResponse::fromJsonString($serializer->serialize($books, 'json'));
     }
 }
